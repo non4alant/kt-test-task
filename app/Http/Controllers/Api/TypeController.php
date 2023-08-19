@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTypeRequest;
 use App\Http\Resources\TypeResource;
 use App\Models\Type;
 use Illuminate\Http\Request;
@@ -25,9 +26,24 @@ class TypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreTypeRequest $request)
     {
-        //
+
+        $validated = $request->validated();
+
+        $validated['mask_sn'] = Type::maskConversion($validated['mask_sn']);
+
+        $created_type = Type::create($validated);
+
+        return response()->json([
+            'success' => [
+                1 => [
+                    'id' => $created_type->id,
+                    'name' => $created_type->name,
+                    'mask_sn' => Type::maskConversion($created_type->mask_sn),
+                ]
+            ],
+        ], 201);
     }
 
     /**
